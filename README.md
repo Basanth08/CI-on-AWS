@@ -5,6 +5,12 @@ Welcome to my **Continuous Integration on AWS** project!
 In this repository, I show you how I set up and manage continuous integration (CI) pipelines using AWS services.
 
 ---
+## Architecture
+
+Here’s the architecture diagram for my CI pipeline on AWS. This visual shows how I’ve structured the flow from code commit to deployment, using various AWS services to automate and streamline the process:
+
+![CI Pipeline Architecture](Diagrams/architecture.png)
+---
 
 ## Project Overview
 
@@ -21,28 +27,6 @@ As of July 25th, 2024, AWS CodeCommit has stopped onboarding new customers. Here
 - If neither of the above applies, I recommend using alternative Git-based source control solutions such as GitHub, GitLab, or Bitbucket. AWS also provides guidance for migrating existing CodeCommit repositories to these platforms.
 
 If you have any questions or need help with migration, feel free to reach out!
-
----
-
-## Current Scenario & Problem
-
-To set the stage, let me show you the current situation and the challenges I face before implementing CI on AWS. Here’s the context and motivation for this project:
-
-### Scenario: Current Situation
-
-In my Agile SDLC, developers (including myself) make regular code changes. Every commit needs to be built and tested to ensure quality.
-
-Usually, the Build & Release team handles this, or sometimes it's up to us developers to merge and integrate code. This can get tricky and time-consuming!
-
-### Problem: Issues with Current Situation
-
-With frequent code changes, testing doesn't always keep up. This leads to bugs and errors piling up in the codebase.
-
-We end up spending time reworking code to fix bugs, dealing with manual build and release processes, and managing inter-team dependencies. It slows us down and makes collaboration harder.
-
-### Solution: My Fix
-
-My answer is to build and test every commit automatically, streamline the process, and get notified for every build status. This is where AWS-powered CI comes in!
 
 ---
 
@@ -174,6 +158,111 @@ To manage my build artifacts, I use AWS CodeArtifact. Here’s how I set it up:
 
 This setup allows me to securely store, publish, and share software packages used in my CI/CD pipeline.
 
+### Installing and Configuring the AWS CLI
+
+To interact with AWS services from my local machine, I first install the AWS CLI. On Windows, I use Chocolatey:
+
+```sh
+choco install awscli -y
+```
+
+Once installed, I configure the CLI with my credentials:
+
+```sh
+aws configure
+```
+
+I enter my AWS Access Key ID, Secret Access Key, default region, and output format. This setup allows me to securely run AWS commands from my terminal.
+
+### Important: Secure Your Credentials in settings.xml
+
+When I configure my Maven `settings.xml` file to connect to AWS CodeArtifact, I make sure **never to hard-code my AWS credentials** directly in the file. Instead, I use environment variables for sensitive information. For example:
+
+```xml
+<server>
+  <id>codeartifact</id>
+  <username>aws</username>
+  <password>${env.CODEARTIFACT_AUTH_TOKEN}</password>
+</server>
+```
+
+This way, my authentication token is pulled from the environment at build time, keeping my credentials safe and out of version control.  
+**Always double-check your `settings.xml` before committing to make sure no secrets are exposed!**
+
+---
+
+## Setting Up SonarCloud
+
+To ensure my code is clean and free of bugs or vulnerabilities, I use SonarCloud for static code analysis. Here’s how I set it up:
+
+1. I go to [sonarcloud.io](https://sonarcloud.io) and log in.
+2. I connect my code repository by choosing from GitHub, Bitbucket, Azure DevOps, or GitLab.
+3. I select the project I want to analyze from my list of repositories.
+4. If needed, I can set up a project manually by providing a project key and display name, and choosing whether the project is public or private.
+
+SonarCloud helps me champion quality code in my projects by eliminating bugs and vulnerabilities. It’s free for open-source projects and easy to integrate into my workflow.
+
+---
+
+## Using AWS Systems Manager Parameter Store
+
+To securely manage and inject sensitive configuration values (like tokens and secrets) into my CI/CD pipeline, I use AWS Systems Manager Parameter Store. Here’s how I set it up:
+
+1. I open the AWS Systems Manager console and navigate to "Parameter Store."
+2. I click "Create parameter" and give my parameter a descriptive name (for example, `sonartoken`, `HOST`, or `codeartifact-token`).
+3. I choose the "Standard" tier for most use cases, and set the type to "String" (or "SecureString" if I want encryption).
+4. I enter the value (such as my SonarCloud token or CodeArtifact token) and save the parameter.
+
+Later, I can reference these parameters in my build and deployment scripts, or configure AWS services (like CodeBuild) to retrieve them securely at runtime. This keeps my secrets out of source code and version control, and makes my pipeline more secure and manageable.
+
+---
+
+## Monitoring and Debugging CodeBuild Builds
+
+Once I start a build in AWS CodeBuild, I closely monitor its progress and results:
+
+- I check the build status and phase details to see each step (like SUBMITTED, QUEUED, PROVISIONING, etc.) and ensure they all succeed.
+- I use the Build logs, Phase details, and Reports tabs to view detailed output, debug issues, and verify that my CI/CD pipeline is working as expected.
+- Environment variables, build details, and resource utilization tabs help me troubleshoot and optimize my builds.
+
+By monitoring these details, I can quickly identify and resolve any issues, ensuring my automated build and deployment process runs smoothly.
+
+---
+
+## Configuring Quality Gates and Build Settings
+
+To enforce code quality and keep my CI/CD pipeline flexible, I:
+
+- Use SonarCloud to set up quality gates. For example, I can configure a quality gate to fail the build if the number of bugs exceeds a certain threshold.
+- Associate a specific quality gate with my project in SonarCloud, ensuring that only code meeting my standards passes the pipeline.
+- In AWS CodeBuild, I can edit build project settings at any time—such as the source, environment, buildspec, and logs—so I can adapt my pipeline as my project evolves.
+
+These steps help me maintain high code quality and make my CI/CD process robust and maintainable.
+
+### Creating a Build Project in AWS CodeBuild
+
+When I want to automate and monitor my CI/CD builds, I create a new build project in AWS CodeBuild:
+
+1. I enter a project name and (optionally) a description to identify my build project.
+2. I choose a managed image (like Ubuntu) for the build environment, and select the appropriate runtime for my application.
+3. I configure the service role, either by creating a new one or selecting an existing role with the necessary permissions.
+4. I enable CloudWatch logs and specify a log group name to monitor and troubleshoot my builds easily.
+
+These steps help me automate my build process and keep track of build activity and issues in my CI/CD pipeline.
+
+---
+
+## Attaching Permissions, Notifications, and Creating Pipelines
+
+To automate, secure, and monitor my CI/CD workflow, I:
+
+- Attach custom policies (like `vprofile-sonarparametersaccess`) to my CodeBuild service role, so my build project can access required parameters and secrets.
+- Start builds by selecting the branch, tag, or commit I want to build from, and clicking **Start build** to trigger the CI/CD process for that code version.
+- Set up notifications using Amazon SNS: I create a topic, subscribe (for example, via email), and confirm the subscription to get notified about build and deployment events.
+- Create a pipeline in AWS CodePipeline: I enter a pipeline name, set or create the service role, add source, build, and deploy stages, and add extra stages (like Test) as needed for my workflow.
+
+These steps help me keep my CI/CD pipeline automated, secure, and easy to monitor from end to end.
+
 ---
 
 ## Table of Contents
@@ -205,12 +294,6 @@ Here’s how I get things up and running:
    I’ll keep updating this repo as I go, so you can see exactly how I build and refine my CI pipeline on AWS.
 
 ---
-
-## Architecture
-
-Here’s the architecture diagram for my CI pipeline on AWS. This visual shows how I’ve structured the flow from code commit to deployment, using various AWS services to automate and streamline the process:
-
-![CI Pipeline Architecture](Diagrams/architecture.png)
 
 ---
 
