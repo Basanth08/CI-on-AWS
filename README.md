@@ -34,6 +34,53 @@ My answer is to build and test every commit automatically, streamline the proces
 
 ---
 
+## Flow of Execution
+
+Here’s how I execute my CI pipeline setup on AWS, step by step:
+
+### 1. Login to AWS Account
+- I start by logging into my AWS account to access all the necessary services.
+
+### 2. CodeCommit
+- I create a CodeCommit repository to store my source code.
+- I set up an IAM user with the required CodeCommit policy.
+- I generate SSH keys locally and exchange them with the IAM user for secure access.
+- I migrate my source code from GitHub to the CodeCommit repository and push it.
+
+### 3. CodeArtifact
+- I create an IAM user with access to CodeArtifact.
+- I install and configure the AWS CLI on my machine.
+- I export the authentication token for CodeArtifact.
+- I update the `settings.xml` file in my source code’s top-level directory with the necessary details.
+- I also update the `pom.xml` file with repository details for dependency management.
+
+### 4. SonarCloud
+- I create a SonarCloud account and generate a token for authentication.
+- I store SonarCloud details as SSM parameters in AWS.
+- I create a build project that integrates with SonarCloud.
+- I update the CodeBuild role to access the SSM Parameter Store for secure credentials.
+
+### 5. Notifications
+- I set up notifications for build and deployment status using SNS or Slack, so I’m always in the loop.
+
+### 6. Build Project
+- I update the `pom.xml` file to include artifact versioning with a timestamp.
+- I create variables in SSM Parameter Store for use in the build process.
+- I create the build project in AWS CodeBuild.
+- I update the CodeBuild role to access SSM Parameter Store as needed.
+
+### 7. Create Pipeline
+- I create a pipeline in AWS CodePipeline that connects all the stages:
+  - CodeCommit (source)
+  - Test code
+  - Build
+  - Deploy to an S3 bucket
+
+### 8. Test Pipeline
+- Finally, I test the pipeline to make sure everything works as expected from code commit to deployment.
+
+---
+
 ## Visual Overview
 
 Continuous Integration on AWS - Project Banner
@@ -97,12 +144,4 @@ Here are the AWS services I’m using in this project:
 
 ---
 
-## Contributing
 
-If you’d like to contribute or have suggestions, I’d love to hear from you! Please open issues or submit pull requests to help me improve this project.
-
----
-
-## License
-
-This project is licensed under the MIT License. 
