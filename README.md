@@ -12,6 +12,18 @@ In this project, I walk you through my process of implementing CI practices on A
 
 ---
 
+## Important Notice: AWS CodeCommit Availability
+
+As of July 25th, 2024, AWS CodeCommit has stopped onboarding new customers. Here’s what this means for me (and for you if you’re following along):
+
+- If I already have at least one CodeCommit repository in my AWS account or organization, I can continue to create more repositories as needed.
+- If I want to use CodeCommit in a new AWS account (especially within an AWS Organization), I need to submit a support case to AWS. In my request, I’ll need to provide justification for using CodeCommit and confirm that my organization was a CodeCommit customer before July 25th, 2024.
+- If neither of the above applies, I recommend using alternative Git-based source control solutions such as GitHub, GitLab, or Bitbucket. AWS also provides guidance for migrating existing CodeCommit repositories to these platforms.
+
+If you have any questions or need help with migration, feel free to reach out!
+
+---
+
 ## Current Scenario & Problem
 
 To set the stage, let me show you the current situation and the challenges I face before implementing CI on AWS. Here’s the context and motivation for this project:
@@ -78,6 +90,89 @@ Here’s how I execute my CI pipeline setup on AWS, step by step:
 
 ### 8. Test Pipeline
 - Finally, I test the pipeline to make sure everything works as expected from code commit to deployment.
+
+---
+
+## Setting Up IAM User and Permissions for CodeCommit
+
+Since I need secure access to AWS CodeCommit, here’s how I set up my IAM user and permissions:
+
+1. **Add a New IAM User:**  
+   I start by creating a new IAM user in the AWS console. I give the user a descriptive name (for example, `vprofile-code-ad`) and select "Programmatic access" so I can use access keys for the AWS CLI, SDK, and other tools.
+
+2. **Attach CodeCommit Policies:**  
+   Next, I assign the necessary permissions. I choose to attach existing policies directly and search for AWS-managed policies related to CodeCommit, such as:
+   - `AWSCodeCommitFullAccess`
+   - `AWSCodeCommitPowerUser`
+   - `AWSCodeCommitReadOnly`
+   I select the policy that matches the level of access I need.
+
+3. **Fine-Tune Permissions (Optional):**  
+   If I want more granular control, I can manually specify actions (like list, read, write) and restrict access to specific repositories by providing the ARN (Amazon Resource Name) for the repository, region, and account.
+
+4. **Review and Create:**  
+   After reviewing the permissions, I create the user and securely store the access key ID and secret access key for use in my development environment.
+
+By following these steps, I make sure my AWS CodeCommit access is both secure and tailored to my project’s needs.
+
+### SSH Key Setup for CodeCommit
+
+To securely connect to AWS CodeCommit using SSH, here’s what I do:
+
+1. **Generate an SSH Key Pair:**  
+   I use the `ssh-keygen` command to generate a new SSH key pair. For example:
+   ```sh
+   ssh-keygen -t rsa -b 3072 -C "my-codecommit-key"
+   ```
+   I save the key with a descriptive name, like `vpro-codecommit_rsa`.
+
+2. **Locate the Public Key:**  
+   I navigate to my `.ssh` directory and find the public key file (e.g., `vpro-codecommit_rsa.pub`).
+
+3. **Copy the Public Key Contents:**  
+   I open the public key file and copy its contents to my clipboard.
+
+4. **Upload the SSH Public Key to IAM:**  
+   In the AWS IAM console, I go to the user’s security credentials and upload the SSH public key under the "SSH keys for AWS CodeCommit" section.
+
+5. **Use the SSH Key for CodeCommit Access:**  
+   Now, I can use this SSH key to securely authenticate and interact with my CodeCommit repositories from my local machine.
+
+This setup ensures my connections to CodeCommit are both secure and convenient.
+
+### Verifying SSH Access to CodeCommit
+
+After uploading my SSH public key to IAM, I always verify that my setup works. I do this by running:
+
+```
+ssh git-codecommit.us-east-2.amazonaws.com
+```
+
+If everything is configured correctly, I’ll see a welcome message or confirmation that my SSH connection to AWS CodeCommit is successful. This step ensures I can securely interact with my repositories.
+
+### Preparing to Migrate My Repository
+
+Before migrating my code from GitHub to CodeCommit, I check my current repository’s configuration. I use:
+
+```
+cat .git/config
+```
+
+This shows me the current remote URL (for example, pointing to GitHub). I’ll need to update this remote to point to my new CodeCommit repository when I’m ready to push my code to AWS.
+
+---
+
+## Setting Up AWS CodeArtifact
+
+To manage my build artifacts, I use AWS CodeArtifact. Here’s how I set it up:
+
+1. I navigate to the CodeArtifact section in the AWS Developer Tools console and click 'Create repository'.
+2. I provide a repository name (for example, 'vprofile-maven-repo') and an optional description.
+3. If needed, I specify public upstream repositories (like Maven Central) to allow my repository to pull dependencies from official sources.
+4. I click 'Next' and, if prompted, create a domain (for example, 'visualpath') to group my repositories.
+5. I review the settings and complete the repository creation process.
+
+This setup allows me to securely store, publish, and share software packages used in my CI/CD pipeline.
 
 ---
 
