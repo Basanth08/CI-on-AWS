@@ -81,12 +81,6 @@ Here’s how I execute my CI pipeline setup on AWS, step by step:
 
 ---
 
-## Visual Overview
-
-Continuous Integration on AWS - Project Banner
-
----
-
 ## Table of Contents
 
 - [Project Overview](#project-overview)
