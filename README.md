@@ -5,16 +5,32 @@ Welcome to my **Continuous Integration on AWS** project!
 In this repository, I show you how I set up and manage continuous integration (CI) pipelines using AWS services.
 
 ---
-## Architecture
-
-Here’s the architecture diagram for my CI pipeline on AWS. This visual shows how I’ve structured the flow from code commit to deployment, using various AWS services to automate and streamline the process:
-
-![CI Pipeline Architecture](Diagrams/architecture.png)
----
 
 ## Project Overview
 
 In this project, I walk you through my process of implementing CI practices on AWS, leveraging cloud-native tools and best practices that I’ve found effective.
+
+---
+
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Table of Contents](#table-of-contents)
+- [Important Notice: AWS CodeCommit Availability](#important-notice-aws-codecommit-availability)
+- [Flow of Execution](#flow-of-execution)
+- [Setting Up IAM User and Permissions for CodeCommit](#setting-up-iam-user-and-permissions-for-codecommit)
+  - [SSH Key Setup for CodeCommit](#ssh-key-setup-for-codecommit)
+  - [Verifying SSH Access to CodeCommit](#verifying-ssh-access-to-codecommit)
+  - [Preparing to Migrate My Repository](#preparing-to-migrate-my-repository)
+- [Setting Up AWS CodeArtifact](#setting-up-aws-codeartifact)
+  - [Installing and Configuring the AWS CLI](#installing-and-configuring-the-aws-cli)
+  - [Important: Secure Your Credentials in settings.xml](#important-secure-your-credentials-in-settingsxml)
+- [Setting Up SonarCloud](#setting-up-sonarcloud)
+- [Using AWS Systems Manager Parameter Store](#using-aws-systems-manager-parameter-store)
+- [Monitoring and Debugging CodeBuild Builds](#monitoring-and-debugging-codebuild-builds)
+- [Configuring Quality Gates and Build Settings](#configuring-quality-gates-and-build-settings)
+  - [Creating a Build Project in AWS CodeBuild](#creating-a-build-project-in-aws-codebuild)
+- [Attaching Permissions, Notifications, and Creating Pipelines](#attaching-permissions-notifications-and-creating-pipelines)
 
 ---
 
@@ -262,57 +278,6 @@ To automate, secure, and monitor my CI/CD workflow, I:
 - Create a pipeline in AWS CodePipeline: I enter a pipeline name, set or create the service role, add source, build, and deploy stages, and add extra stages (like Test) as needed for my workflow.
 
 These steps help me keep my CI/CD pipeline automated, secure, and easy to monitor from end to end.
-
----
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Current Scenario & Problem](#current-scenario--problem)
-- [Visual Overview](#visual-overview)
-- [Getting Started](#getting-started)
-- [Architecture](#architecture)
-- [CI Pipeline Steps](#ci-pipeline-steps)
-- [AWS Services Used](#aws-services-used)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## Getting Started
-
-Here’s how I get things up and running:
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Basanth08/CI-on-AWS.git
-   cd CI-on-AWS
-   ```
-   This is where I start my journey.
-
-2. **Follow along with my documentation and images for step-by-step guidance.**
-   I’ll keep updating this repo as I go, so you can see exactly how I build and refine my CI pipeline on AWS.
-
----
-
----
-
-## CI Pipeline Steps
-
-I’ll document each step of my CI pipeline here, adding screenshots and explanations as I progress.
-
----
-
-## AWS Services Used
-
-Here are the AWS services I’m using in this project:
-
-- AWS CodePipeline
-- AWS CodeBuild
-- AWS CodeCommit
-- AWS S3
-- AWS IAM
-<!-- I’ll add more as needed -->
 
 ---
 
