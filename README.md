@@ -107,7 +107,7 @@ Here’s how I get things up and running:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/CI-on-AWS.git
+   git clone https://github.com/Basanth08/CI-on-AWS.git
    cd CI-on-AWS
    ```
    This is where I start my journey.
